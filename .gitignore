@@ -26,18 +26,17 @@ wheels/
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# Data
+# Data - EXCLUDE raw dataset
 data/*.csv
+data/*.zip
+data/*.gz
+
+# Keep .gitkeep for folder structure
 !data/.gitkeep
 
-# Models
-models/*.pkl
-!models/.gitkeep
-
-# Reports
+# Reports (generated, not source)
 reports/*.png
 reports/*.pdf
-!reports/.gitkeep
 
 # IDE
 .vscode/
@@ -51,3 +50,9 @@ Thumbs.db
 
 # Streamlit
 .streamlit/
+
+# Model files
+models/*.pkl
+
+# Keep .gitkeep for folder structure
+!models/.gitkeep
