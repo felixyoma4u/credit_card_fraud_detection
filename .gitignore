@@ -48,8 +48,8 @@ reports/*.pdf
 .DS_Store
 Thumbs.db
 
-# Streamlit
-.streamlit/
+# Streamlit secrets
+.streamlit/secrets.toml
 
 # Model files
 models/*.pkl
