@@ -91,6 +91,34 @@ st.markdown("""
         border-radius: 8px;
         overflow: hidden;
     }
+    .home-grid {
+        display: block;
+        max-width: 1100px;
+        margin: 0 auto 12px auto;
+    }
+    .metric-row {
+        display: flex;
+        gap: 14px;
+        justify-content: space-between;
+        align-items: stretch;
+        margin-bottom: 14px;
+    }
+    .metric-card {
+        flex: 1 1 0;
+        background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(250,250,255,0.98));
+        border-radius: 12px;
+        padding: 16px;
+        text-align: left;
+    }
+    .metric-title { color: var(--muted); font-size: 0.9rem; }
+    .metric-value { color: var(--brand); font-size: 1.6rem; font-weight:700; margin-top:6px }
+    .metric-sub { color: #94a3b8; font-size: 0.85rem; margin-top:4px }
+    .home-features { display:flex; gap:14px; margin-top: 10px; flex-wrap:wrap }
+    .feature { flex:1 1 0; background:transparent; padding:10px }
+    .feature-icon { font-size:1.5rem }
+    .feature-title { font-weight:600; margin-top:6px }
+    .feature-desc { color:var(--muted); font-size:0.95rem }
+    .cta-row { margin-top:14px; display:flex; gap:12px }
 </style>
 """, unsafe_allow_html=True)
 
@@ -169,16 +197,47 @@ def main():
 
     # Home Page
     if page == "Home":
-        st.header("Welcome to the Fraud Detection System")
-
-        col1, col2, col3 = st.columns(3)
-
-        with col1:
-            st.metric("Dataset Size", "284,807", "transactions")
-        with col2:
-            st.metric("Fraud Rate", "0.172%", "492 frauds")
-        with col3:
-            st.metric("Model Type", "Random Forest", "Ensemble")
+        st.markdown("""
+        <div class="home-grid card">
+            <div class="metric-row">
+                <div class="metric-card">
+                    <div class="metric-title">Dataset Size</div>
+                    <div class="metric-value">284,807</div>
+                    <div class="metric-sub">transactions</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Fraud Rate</div>
+                    <div class="metric-value">0.172%</div>
+                    <div class="metric-sub">492 frauds</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Model Type</div>
+                    <div class="metric-value">Random Forest</div>
+                    <div class="metric-sub">Ensemble</div>
+                </div>
+            </div>
+            <div class="home-features">
+                <div class="feature">
+                    <div class="feature-icon">🔍</div>
+                    <div class="feature-title">Single Transaction Check</div>
+                    <div class="feature-desc">Quickly analyze one transaction with PCA features, time, and amount.</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">📤</div>
+                    <div class="feature-title">Batch Prediction</div>
+                    <div class="feature-desc">Upload CSV files for bulk scoring and download results.</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">📈</div>
+                    <div class="feature-title">Model Insights</div>
+                    <div class="feature-desc">View performance charts and feature importance to explain decisions.</div>
+                </div>
+            </div>
+            <div class="cta-row">
+                <div style="flex:0 0 auto"> </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
         st.markdown("""
         ### How to Use This Application
@@ -186,21 +245,6 @@ def main():
         1. **Single Transaction Check**: Enter transaction details manually to get an instant fraud risk assessment.
         2. **Batch Prediction**: Upload a CSV file with multiple transactions for batch analysis.
         3. **Model Insights**: View model performance metrics and feature importance rankings.
-
-        ### About the Model
-
-        The fraud detection model is a **Random Forest Classifier** trained on the European credit card fraud dataset. 
-
-        **Preprocessing Pipeline:**
-        - Feature engineering (Hour of day, Log-transformed Amount)
-        - RobustScaler normalization (resistant to outliers)
-        - SMOTE for handling class imbalance
-
-        **Model Parameters:**
-        - 200 estimators (trees)
-        - Max depth: 20
-        - Min samples split: 5
-        - Class weight: balanced
         """)
 
     # Single Transaction Check
