@@ -1,3 +1,6 @@
+from src.utils import create_sample_data, format_prediction_result
+from src.preprocessor import FraudPreprocessor
+from src.config import MODEL_PATH, SCALER_PATH, FEATURES_PATH
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -9,9 +12,6 @@ import matplotlib.pyplot as plt
 # Add src to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from src.config import MODEL_PATH, SCALER_PATH, FEATURES_PATH
-from src.preprocessor import FraudPreprocessor
-from src.utils import create_sample_data, format_prediction_result
 
 # Page configuration
 st.set_page_config(
@@ -21,21 +21,75 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS
+# Custom CSS — refined for a cleaner, more elegant UI
 st.markdown("""
 <style>
-    .main-header {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: #1f77b4;
-        text-align: center;
-        margin-bottom: 1rem;
+    :root {
+        --brand: #0b84ff;
+        --muted: #6b7280;
+        --bg: #f7fafc;
+        --card: #ffffff;
+        --glass: rgba(255,255,255,0.6);
     }
-    .sub-header {
-        font-size: 1.2rem;
-        color: #666;
+    html, body, [class*="css"]  {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+        background-color: var(--bg) !important;
+    }
+    .hero {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        padding: 1.2rem 0 0.5rem 0;
+        margin-bottom: 0.6rem;
+    }
+    .hero-content {
+        background: linear-gradient(90deg, rgba(11,132,255,0.08), rgba(11,132,255,0.04));
+        border-radius: 12px;
+        padding: 18px 24px;
         text-align: center;
-        margin-bottom: 2rem;
+        box-shadow: 0 6px 18px rgba(15,23,42,0.06);
+        max-width: 1100px;
+        width: 100%;
+    }
+    .hero .title {
+        font-size: 2.1rem;
+        font-weight: 700;
+        color: var(--brand);
+        letter-spacing: -0.5px;
+    }
+    .hero .subtitle {
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 1rem;
+    }
+    .card {
+        background: var(--card);
+        border-radius: 10px;
+        padding: 14px;
+        box-shadow: 0 6px 14px rgba(15,23,42,0.04);
+        margin-bottom: 12px;
+    }
+    .stButton>button {
+        background: var(--brand) !important;
+        color: #fff !important;
+        border-radius: 8px !important;
+        padding: 8px 14px !important;
+        font-weight: 600 !important;
+    }
+    .stAlert {
+        border-radius: 8px !important;
+        padding: 10px 14px !important;
+    }
+    /* Tweak metric appearance */
+    .stMetric > div {
+        background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(250,250,250,0.9));
+        border-radius: 8px;
+        padding: 8px;
+    }
+    /* Make dataframes and images feel lighter */
+    .stDataFrame, .stImage {
+        border-radius: 8px;
+        overflow: hidden;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -69,15 +123,25 @@ def predict_batch(df, model, preprocessor):
 
 
 def main():
-    # Header
-    st.markdown('<div class="main-header">💳 Credit Card Fraud Detection</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-header">AI-Powered Fraud Detection System | TechCrush AI/ML Bootcamp Capstone</div>', unsafe_allow_html=True)
+    # Header (hero)
+    st.markdown(
+        '''
+        <div class="hero">
+            <div class="hero-content">
+                <div class="title">💳 CardGuard</div>
+                <div class="subtitle">Fraud Detection System — TechCrush AI/ML Bootcamp Capstone</div>
+            </div>
+        </div>
+        ''',
+        unsafe_allow_html=True
+    )
 
     # Load model
     model, preprocessor = load_model_and_preprocessor()
 
     if model is None:
-        st.error("Model not found! Please train the model first by running: python train.py")
+        st.error(
+            "Model not found! Please train the model first by running: python train.py")
         return
 
     st.success("Model loaded successfully!")
@@ -100,7 +164,8 @@ def main():
     )
 
     st.sidebar.markdown("---")
-    st.sidebar.info("This application uses a Random Forest classifier trained on the Kaggle Credit Card Fraud Detection dataset.")
+    st.sidebar.info(
+        "This application uses a Random Forest classifier trained on the Kaggle Credit Card Fraud Detection dataset.")
 
     # Home Page
     if page == "Home":
@@ -143,10 +208,12 @@ def main():
         st.header("Single Transaction Fraud Check")
         st.markdown("Enter transaction details below to analyze fraud risk.")
 
-        tab1, tab2 = st.tabs(["Manual Input (PCA Features)", "Use Sample Data"])
+        tab1, tab2 = st.tabs(
+            ["Manual Input (PCA Features)", "Use Sample Data"])
 
         with tab1:
-            st.info("Enter the PCA-transformed features (V1-V28), Time, and Amount for the transaction.")
+            st.info(
+                "Enter the PCA-transformed features (V1-V28), Time, and Amount for the transaction.")
 
             col1, col2, col3 = st.columns(3)
 
@@ -155,20 +222,25 @@ def main():
             with col1:
                 st.subheader("V1 - V10")
                 for i in range(1, 11):
-                    features[f'V{i}'] = st.number_input(f'V{i}', value=0.0, format="%.6f", key=f'v{i}')
+                    features[f'V{i}'] = st.number_input(
+                        f'V{i}', value=0.0, format="%.6f", key=f'v{i}')
 
             with col2:
                 st.subheader("V11 - V20")
                 for i in range(11, 21):
-                    features[f'V{i}'] = st.number_input(f'V{i}', value=0.0, format="%.6f", key=f'v{i}')
+                    features[f'V{i}'] = st.number_input(
+                        f'V{i}', value=0.0, format="%.6f", key=f'v{i}')
 
             with col3:
                 st.subheader("V21 - V28 + Meta")
                 for i in range(21, 29):
-                    features[f'V{i}'] = st.number_input(f'V{i}', value=0.0, format="%.6f", key=f'v{i}')
+                    features[f'V{i}'] = st.number_input(
+                        f'V{i}', value=0.0, format="%.6f", key=f'v{i}')
 
-                features['Time'] = st.number_input('Time (seconds)', value=0.0, min_value=0.0, format="%.1f", key='time')
-                features['Amount'] = st.number_input('Amount (€)', value=100.0, min_value=0.0, format="%.2f", key='amount')
+                features['Time'] = st.number_input(
+                    'Time (seconds)', value=0.0, min_value=0.0, format="%.1f", key='time')
+                features['Amount'] = st.number_input(
+                    'Amount (€)', value=100.0, min_value=0.0, format="%.2f", key='amount')
 
             if st.button("Analyze Transaction", type="primary", use_container_width=True):
                 with st.spinner("Analyzing transaction..."):
@@ -186,7 +258,8 @@ def main():
                         st.success("LEGITIMATE")
 
                 with col_result2:
-                    st.metric("Fraud Probability", f"{result['probability']:.2%}")
+                    st.metric("Fraud Probability",
+                              f"{result['probability']:.2%}")
 
                 with col_result3:
                     st.metric("Risk Level", result['risk_level'])
@@ -194,18 +267,22 @@ def main():
                 st.progress(min(result['probability'], 1.0))
 
                 if result['is_fraud']:
-                    st.error(f"High Risk Transaction: {result['probability']:.2%} fraud probability. Recommendation: Flag for manual review.")
+                    st.error(
+                        f"High Risk Transaction: {result['probability']:.2%} fraud probability. Recommendation: Flag for manual review.")
                 else:
-                    st.success(f"Low Risk Transaction: {result['probability']:.2%} fraud probability. Recommendation: Approve transaction.")
+                    st.success(
+                        f"Low Risk Transaction: {result['probability']:.2%} fraud probability. Recommendation: Approve transaction.")
 
         with tab2:
             st.info("Generate a random sample transaction for testing.")
 
-            sample_type = st.radio("Sample Type:", ["Legitimate-like", "Fraud-like"], horizontal=True)
+            sample_type = st.radio(
+                "Sample Type:", ["Legitimate-like", "Fraud-like"], horizontal=True)
 
             if st.button("Generate Sample", type="primary"):
                 with st.spinner("Generating sample..."):
-                    sample_df = create_sample_data(n_samples=1, fraud_rate=1.0 if sample_type == "Fraud-like" else 0.0)
+                    sample_df = create_sample_data(
+                        n_samples=1, fraud_rate=1.0 if sample_type == "Fraud-like" else 0.0)
                     sample_dict = sample_df.iloc[0].to_dict()
 
                 st.write("Generated Sample:")
@@ -218,14 +295,16 @@ def main():
 
                 col1, col2 = st.columns(2)
                 with col1:
-                    st.metric("Prediction", "FRAUD" if result['is_fraud'] else "LEGITIMATE")
+                    st.metric("Prediction",
+                              "FRAUD" if result['is_fraud'] else "LEGITIMATE")
                 with col2:
                     st.metric("Probability", f"{result['probability']:.2%}")
 
     # Batch Prediction
     elif page == "Batch Prediction":
         st.header("Batch Prediction")
-        st.markdown("Upload a CSV file with multiple transactions for batch fraud detection.")
+        st.markdown(
+            "Upload a CSV file with multiple transactions for batch fraud detection.")
 
         uploaded_file = st.file_uploader(
             "Upload CSV file",
@@ -247,7 +326,8 @@ def main():
                 results_df = df.copy()
                 results_df['Fraud_Probability'] = probs
                 results_df['Fraud_Prediction'] = preds
-                results_df['Risk_Level'] = pd.cut(probs, bins=[0, 0.3, 0.7, 1.0], labels=['Low', 'Medium', 'High'])
+                results_df['Risk_Level'] = pd.cut(
+                    probs, bins=[0, 0.3, 0.7, 1.0], labels=['Low', 'Medium', 'High'])
 
                 st.markdown("---")
                 st.subheader("Prediction Summary")
@@ -264,8 +344,10 @@ def main():
 
                 st.subheader("Fraud Probability Distribution")
                 fig, ax = plt.subplots(figsize=(10, 5))
-                ax.hist(probs, bins=50, color='#3498db', edgecolor='white', alpha=0.7)
-                ax.axvline(x=threshold, color='red', linestyle='--', linewidth=2, label=f'Threshold ({threshold})')
+                ax.hist(probs, bins=50, color='#3498db',
+                        edgecolor='white', alpha=0.7)
+                ax.axvline(x=threshold, color='red', linestyle='--',
+                           linewidth=2, label=f'Threshold ({threshold})')
                 ax.set_xlabel('Fraud Probability')
                 ax.set_ylabel('Count')
                 ax.set_title('Distribution of Fraud Probabilities')
@@ -286,7 +368,8 @@ def main():
                 high_risk = results_df[results_df['Risk_Level'] == 'High']
                 if len(high_risk) > 0:
                     st.markdown("---")
-                    st.subheader(f"High Risk Transactions ({len(high_risk)} found)")
+                    st.subheader(
+                        f"High Risk Transactions ({len(high_risk)} found)")
                     st.dataframe(high_risk, use_container_width=True)
 
     # Model Insights
@@ -336,7 +419,7 @@ def main():
 
         params = model.get_params()
         params_df = pd.DataFrame([
-            {'Parameter': k, 'Value': str(v)} 
+            {'Parameter': k, 'Value': str(v)}
             for k, v in params.items()
         ])
         st.dataframe(params_df, use_container_width=True, hide_index=True)
