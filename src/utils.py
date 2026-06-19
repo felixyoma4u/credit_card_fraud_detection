@@ -5,12 +5,20 @@ Utility functions for the fraud detection project.
 import pandas as pd
 import numpy as np
 import logging
+from typing import Iterable
+from pandas.api.types import is_numeric_dtype
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 
-def validate_input_data(df: pd.DataFrame, expected_features: list) -> bool:
+def validate_input_data(
+    df: pd.DataFrame,
+    expected_features: Iterable[str],
+    *,
+    allow_extra: bool = True,
+    numeric_only: bool = True
+) -> bool:
     """
     Validate that input data contains all required features.
 
@@ -24,6 +32,22 @@ def validate_input_data(df: pd.DataFrame, expected_features: list) -> bool:
     missing = [col for col in expected_features if col not in df.columns]
     if missing:
         raise ValueError(f"Missing required features: {missing}")
+
+    if not allow_extra:
+        extra = [col for col in df.columns if col not in expected_features]
+        if extra:
+            raise ValueError(f"Unexpected extra features: {extra}")
+
+    if numeric_only:
+        non_numeric = [
+            col for col in expected_features
+            if col in df.columns and not is_numeric_dtype(df[col])
+        ]
+        if non_numeric:
+            raise ValueError(
+                "Non-numeric values detected in numeric feature columns: "
+                f"{non_numeric}"
+            )
 
     if df.empty:
         raise ValueError("Input dataframe is empty")

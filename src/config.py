@@ -18,6 +18,8 @@ DATASET_PATH = os.path.join(DATA_DIR, 'creditcard.csv')
 MODEL_PATH = os.path.join(MODELS_DIR, 'fraud_detection_rf_model.pkl')
 SCALER_PATH = os.path.join(MODELS_DIR, 'robust_scaler.pkl')
 FEATURES_PATH = os.path.join(MODELS_DIR, 'feature_names.pkl')
+SUMMARY_PATH = os.path.join(REPORTS_DIR, 'dataset_summary.json')
+METRICS_PATH = os.path.join(REPORTS_DIR, 'model_metrics.json')
 
 # Training parameters
 TEST_SIZE = 0.2

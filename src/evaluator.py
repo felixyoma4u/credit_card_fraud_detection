@@ -15,8 +15,9 @@ from sklearn.metrics import (
 from typing import Dict, List
 import os
 import logging
+import joblib
 
-from src.config import REPORTS_DIR
+from src.config import REPORTS_DIR, METRICS_PATH
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -68,6 +69,9 @@ class ModelEvaluator:
         for key, value in metrics.items():
             if key != 'Model':
                 logger.info(f"{key:12s}: {value:.4f}")
+
+        joblib.dump(metrics, METRICS_PATH)
+        logger.info(f"Metrics saved to: {METRICS_PATH}")
 
         return metrics
 

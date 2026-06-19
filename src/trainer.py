@@ -6,9 +6,9 @@ Coordinates data loading, preprocessing, model training, and saving.
 import os
 import joblib
 import logging
-from typing import Tuple
+from typing import Tuple, Dict, Any
 
-from src.config import MODEL_PATH, DATASET_PATH
+from src.config import MODEL_PATH, DATASET_PATH, SUMMARY_PATH
 from src.data_loader import DataLoader
 from src.preprocessor import FraudPreprocessor
 from src.model import FraudDetectionModel
@@ -33,7 +33,7 @@ class ModelTrainer:
         self.preprocessor = FraudPreprocessor()
         self.model = FraudDetectionModel()
 
-    def run(self) -> Tuple[FraudDetectionModel, FraudPreprocessor]:
+    def run(self) -> Tuple[FraudDetectionModel, FraudPreprocessor, Any, Any, Dict[str, Any]]:
         """
         Execute the full training pipeline.
 
@@ -53,6 +53,7 @@ class ModelTrainer:
         # Step 1: Load and clean data
         df = self.data_loader.load()
         df = self.data_loader.clean()
+        summary = self.data_loader.get_summary()
 
         # Step 2: Preprocess
         X_train, X_test, y_train, y_test = self.preprocessor.fit_transform(df)
@@ -63,15 +64,21 @@ class ModelTrainer:
         # Step 4: Save artifacts
         self._save_model()
         self.preprocessor.save_artifacts()
+        self._save_summary(summary)
 
         logger.info("=" * 60)
         logger.info("TRAINING PIPELINE COMPLETE")
         logger.info("=" * 60)
 
-        return self.model, self.preprocessor, X_test, y_test
+        return self.model, self.preprocessor, X_test, y_test, summary
 
     def _save_model(self):
         """Save the trained model to disk."""
         os.makedirs(os.path.dirname(self.model_path), exist_ok=True)
         joblib.dump(self.model, self.model_path)
         logger.info(f"Model saved to: {self.model_path}")
+
+    def _save_summary(self, summary: Dict[str, Any]):
+        os.makedirs(os.path.dirname(SUMMARY_PATH), exist_ok=True)
+        joblib.dump(summary, SUMMARY_PATH)
+        logger.info(f"Dataset summary saved to: {SUMMARY_PATH}")

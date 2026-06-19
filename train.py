@@ -34,7 +34,7 @@ def main():
     trainer = ModelTrainer(dataset_path=DATASET_PATH)
 
     # Run full pipeline
-    model, preprocessor, X_test, y_test = trainer.run()
+    model, preprocessor, X_test, y_test, data_summary = trainer.run()
 
     # Evaluate on test set
     print("\n" + "=" * 70)
@@ -51,6 +51,17 @@ def main():
         y_test, y_pred, y_prob,
         importances_df=model.get_feature_importance(preprocessor.feature_names)
     )
+
+    print("\n" + "-" * 70)
+    print("DATASET SUMMARY")
+    print("-" * 70)
+    for key, value in data_summary.items():
+        if isinstance(value, dict):
+            print(f"{key}:")
+            for sub_key, sub_value in value.items():
+                print(f"  {sub_key}: {sub_value}")
+        else:
+            print(f"{key}: {value}")
 
     print("\n" + "=" * 70)
     print("TRAINING COMPLETE")

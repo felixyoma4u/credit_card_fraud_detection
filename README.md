@@ -73,11 +73,11 @@ This will:
 streamlit run app.py
 ```
 
-The Streamlit app allows you to:
-- Upload transaction data for batch prediction
-- Input individual transaction features manually
-- View model performance metrics
-- See feature importance rankings
+**CardGuard** (the Streamlit experience) provides:
+- **Overview dashboard** with dataset snapshot, workflow shortcuts, and guided next steps
+- **Single Check** form for hand-entered PCA transactions or synthetic samples
+- **Batch Analysis** with CSV validation, distribution plots, and high-risk drill-downs
+- **Model Insights** presenting metrics (ROC-AUC, PR-AUC, F1) plus stored evaluation plots
 
 ### 5. Make Batch Predictions
 
@@ -96,6 +96,21 @@ python predict.py --input data/new_transactions.csv --output predictions.csv
 - **Preprocessing:** RobustScaler for numerical features
 - **Imbalance Handling:** SMOTE for training data
 - **Evaluation Metrics:** Precision, Recall, F1-Score, ROC-AUC, PR-AUC
+
+## Generated Artifacts
+
+Training now persists additional assets in `reports/` for observability:
+- `dataset_summary.json` – shape, class balance, and amount statistics used across the UI
+- `model_metrics.json` – latest top-level metrics surfaced inside the Streamlit dashboard
+- Plot images: confusion matrix, ROC curve, PR curve, feature importance
+
+## Quality Checks
+
+Run automated tests before committing changes:
+
+```bash
+pytest
+```
 
 ## Performance
 

@@ -54,7 +54,12 @@ class FraudDetectionModel:
             self: For method chaining
         """
         logger.info(f"Training model on {len(X_train)} samples...")
-        self.model.fit(X_train, y_train)
+        try:
+            self.model.fit(X_train, y_train)
+        except ValueError as exc:
+            raise ValueError(
+                "Model training failed. Ensure input features are numeric and match the training schema."
+            ) from exc
         self.is_trained = True
 
         # Log OOB score if available
@@ -76,6 +81,8 @@ class FraudDetectionModel:
         """
         if not self.is_trained:
             raise ValueError("Model has not been trained yet. Call fit() first.")
+        if X is None or len(X) == 0:
+            raise ValueError("Input data for prediction is empty.")
         return self.model.predict(X)
 
     def predict_proba(self, X):
@@ -90,6 +97,8 @@ class FraudDetectionModel:
         """
         if not self.is_trained:
             raise ValueError("Model has not been trained yet. Call fit() first.")
+        if X is None or len(X) == 0:
+            raise ValueError("Input data for prediction is empty.")
         return self.model.predict_proba(X)
 
     def get_feature_importance(self, feature_names=None):

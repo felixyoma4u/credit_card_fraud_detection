@@ -53,6 +53,11 @@ class TestDataUtils:
         with pytest.raises(ValueError):
             validate_input_data(df, ['NonExistentColumn'])
 
+        bad_df = df.copy()
+        bad_df['Time'] = 'not numeric'
+        with pytest.raises(ValueError):
+            validate_input_data(bad_df, expected)
+
 
 class TestConfig:
     """Tests for configuration."""

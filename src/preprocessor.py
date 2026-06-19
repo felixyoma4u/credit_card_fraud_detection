@@ -8,9 +8,11 @@ import numpy as np
 from sklearn.preprocessing import RobustScaler
 from sklearn.model_selection import train_test_split
 from imblearn.over_sampling import SMOTE
-from typing import Tuple, List
+from typing import Tuple
 import joblib
 import logging
+
+from src.utils import validate_input_data
 
 from src.config import (
     TEST_SIZE, RANDOM_STATE, SMOTE_PARAMS, 
@@ -49,6 +51,18 @@ class FraudPreprocessor:
             DataFrame with new engineered features
         """
         df = df.copy()
+
+        required_base_cols = ['Time', 'Amount']
+        missing = [col for col in required_base_cols if col not in df.columns]
+        if missing:
+            raise ValueError(
+                "Missing required base columns for feature engineering: "
+                f"{missing}"
+            )
+
+        df[required_base_cols] = df[required_base_cols].apply(pd.to_numeric, errors='coerce')
+        if df[required_base_cols].isnull().any().any():
+            raise ValueError("Non-numeric values detected in Time/Amount columns after coercion")
 
         # Hour of day from Time (seconds)
         df['Hour'] = (df['Time'] // 3600) % 24
@@ -119,8 +133,8 @@ class FraudPreprocessor:
         """
         X_train_scaled = self.scaler.fit_transform(X_train)
         X_train_scaled = pd.DataFrame(
-            X_train_scaled, 
-            columns=X_train.columns, 
+            X_train_scaled,
+            columns=X_train.columns,
             index=X_train.index
         )
 
@@ -160,7 +174,14 @@ class FraudPreprocessor:
         Returns:
             Balanced training data
         """
-        X_resampled, y_resampled = self.smote.fit_resample(X_train, y_train)
+        try:
+            X_resampled, y_resampled = self.smote.fit_resample(X_train, y_train)
+        except ValueError as exc:
+            logger.warning(
+                "SMOTE could not be applied (%s). Proceeding without resampling.",
+                exc
+            )
+            return X_train, y_train
 
         logger.info(f"SMOTE applied. Before: {len(y_train)} samples, After: {len(y_resampled)} samples")
         logger.info(f"Class distribution after SMOTE: {pd.Series(y_resampled).value_counts().to_dict()}")
@@ -212,9 +233,16 @@ class FraudPreprocessor:
         """
         df = self.engineer_features(df)
 
-        # Select only the features used during training
-        feature_cols = [col for col in df.columns if col not in DROP_FEATURES + [TARGET_COLUMN]]
-        X = df[feature_cols]
+        if self.feature_names is None:
+            raise ValueError("Preprocessor artifacts missing. Load artifacts before transforming new data.")
+
+        validate_input_data(df, self.feature_names, allow_extra=True)
+
+        missing_cols = [col for col in self.feature_names if col not in df.columns]
+        if missing_cols:
+            raise ValueError(f"Missing engineered feature columns: {missing_cols}. Did you include Time and Amount?")
+
+        X = df[self.feature_names]
 
         X_scaled = self.transform_scale(X)
         return X_scaled
